@@ -1,4 +1,3 @@
-*.pbxproj -text
 /*.js
 node_modules
 dist
