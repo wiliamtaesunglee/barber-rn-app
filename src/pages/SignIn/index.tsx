@@ -1,8 +1,9 @@
 import React, { useCallback, useRef } from 'react';
-import { Image, View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Image, View, ScrollView, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
+import { useNavigation } from '@react-navigation/native';
 
 import Button from '../../components/Button';
 import Input from '../../components/Input';
@@ -17,10 +18,10 @@ import {
   CreateAccountButton,
   CreateAccountButtonText,
  } from './styles';
-import { useNavigation } from '@react-navigation/native';
 
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
+  const passowrdInputRef = useRef<TextInput>(null);
   const navigation = useNavigation();
 
   const handleSignIn = useCallback((data: object) => {
@@ -49,14 +50,27 @@ const SignIn: React.FC = () => {
               onSubmit={handleSignIn}
             >
               <Input
+                autoCorrect={false}
+                autoCapitalize="none"
+                keyboardType="email-address"
                 name="email"
                 icon="mail"
                 placeholder="E-mail"
+                returnKeyType="next"
+                onSubmitEditing={() => {
+                  passowrdInputRef.current?.focus();
+                }}
               />
               <Input
+                ref={passowrdInputRef}
                 name="Senha"
                 icon="lock"
                 placeholder="Senha"
+                secureTextEntry
+                returnKeyType="send"
+                onSubmitEditing={() => {
+                  formRef.current?.submitForm()
+                }}
               />
 
               <Button
