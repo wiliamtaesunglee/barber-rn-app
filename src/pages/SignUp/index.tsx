@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import * as Yup from 'yup';
+import api from '../../services/api';
 
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
@@ -41,7 +42,7 @@ const SignIn: React.FC = () => {
     password: string;
   }
 
-  const handleSignUp = useCallback((data: object) => {
+  const handleSignUp = useCallback(
     async (data: SignUpFormData) => {
       try {
         formRef.current?.setErrors({});
@@ -51,22 +52,27 @@ const SignIn: React.FC = () => {
           email: Yup.string()
             .required('E-mail obrigatório')
             .email('Digite um e-mail válido'),
-          passowrd: Yup.string().required('Senha Obrigatória'),
+          password: Yup.string().required('Senha Obrigatória'),
         });
 
         await schema.validate(data, {
           abortEarly: false,
         });
 
-        // await SignIn({
-        //   email: data.email,
-        //   password: data.password,
-        // });
-      } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors();
+        await api.post('/users', data)
 
-          // formRef.current?.setErrors(errors);
+        Alert.alert(
+          'Cadastro realizado com sucesso!',
+          'Você já pode fazer login na aplicação.',
+        )
+
+        navigation.goBack();
+      } catch (err) {
+        console.log(err, data)
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+
+          formRef.current?.setErrors(errors);
 
           return;
         }
@@ -76,8 +82,7 @@ const SignIn: React.FC = () => {
           'Ocorreu um erro ao fazer login, cheque as credenciais',
         )
       }
-    }
-  }, [])
+    }, [navigation])
   return (
     <>
       <KeyboardAvoidingView
@@ -112,6 +117,7 @@ const SignIn: React.FC = () => {
               />
               <Input
                 ref={emailInputRef}
+                autoCapitalize="none"
                 keyboardType="email-address"
                 autoCorrect={false}
                 name="email"
@@ -124,8 +130,9 @@ const SignIn: React.FC = () => {
               />
               <Input
                 ref={passwordInputRef}
+                autoCapitalize="none"
                 secureTextEntry
-                name="Senha"
+                name="password"
                 icon="lock"
                 placeholder="Senha"
                 textContentType="newPassword"

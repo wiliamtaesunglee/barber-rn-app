@@ -1,3 +1,15 @@
-const getValidationErrors = () => {}
+import { ValidationError } from 'yup';
 
-export default getValidationErrors;
+interface Errors {
+  [key: string]: string;
+}
+
+export default function getValidationErrors(err: ValidationError): Errors {
+  const validationErrors: Errors = {};
+
+  err.inner.forEach(error => {
+    validationErrors[error.path] = error.message;
+  });
+
+  return validationErrors;
+}
